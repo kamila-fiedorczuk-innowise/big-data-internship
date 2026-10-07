@@ -1,11 +1,13 @@
 -- 	List of rooms and the number of students in each of them
 
-SELECT 
-room_id AS rooms,
-COUNT(room_id) AS number_of_students
-FROM students
-GROUP BY room_id
-ORDER BY room_id;
+SELECT
+	r.id,
+	COUNT(s.room_id) AS number_of_students	
+FROM rooms AS r
+LEFT JOIN students AS s
+ON r.id = s.room_id
+GROUP BY r.id
+ORDER BY r.id;
 
 -- 	5 rooms with the smallest average age of students
 
