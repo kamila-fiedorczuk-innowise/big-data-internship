@@ -37,4 +37,31 @@
 - Created and configured the virtual environment 
 - Designed the architecture 
 
-## How to run
+--------------------------------------------
+
+## Index optimization
+
+Proposed indexes (sql/indexes.sql):
+
+- `(room_id, birthday)` – for average age and age difference per room
+- `(room_id, sex)` – for rooms with students of different sex
+
+`room_id` is the first column because all queries group by room.
+The second column holds the only other value each query needs,
+so the database could answer from the index without reading the table.
+A separate index on the foreign key `room_id` is not needed,
+because `room_id` is the first column of both indexes.
+
+### Results
+
+Execution plans (EXPLAIN ANALYZE) before and after creating the indexes
+are identical: PostgreSQL uses a sequential scan in all four queries.
+The students table has 10,000 rows (76 pages, about 600 kB), so reading it
+in full is cheaper than using an index. Differences in execution time
+between runs came from measurement noise, not from the indexes.
+
+In the average age and age difference queries, most of the time is spent
+calculating age for every row (about 9 ms out of 10 ms), not on reading data.
+An index does not reduce that cost.
+
+The indexes are expected to be used as the table grows.

@@ -15,3 +15,6 @@ __pycache__/
 data/
 *.csv
 .env
+
+# Generated output
+output/
