@@ -2,8 +2,10 @@ from pathlib import Path
 
 from src.db_connection import Connection
 from src.json_read import JsonReader
+from src.schema_creation import SchemaCreation
 
 DATA_DIR = Path(__file__).parent / "data"
+SQL_DIR = Path(__file__).parent / "sql"
 
 if __name__ == "__main__":
 
@@ -28,3 +30,23 @@ if __name__ == "__main__":
         except (FileNotFoundError, ValueError) as e:
             print(f"ERROR: {e}")
     # END JSON READ TEST
+
+    # SCHEMA CREATION TEST
+    with Connection() as conn:
+        print(f"Database: {conn.info.dbname}")
+
+        schema = SchemaCreation(SQL_DIR / "schema.sql", conn)
+        schema.create_schema()
+        schema.create_schema()
+        print("create_schema() ran twice without errors")
+
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM rooms;")
+            print(f"rooms: {cur.fetchone()[0]} rows")
+
+            cur.execute("SELECT COUNT(*) FROM students;")
+            print(f"students: {cur.fetchone()[0]} rows")
+
+            cur.execute("SELECT COUNT(*) FROM student_age;")
+            print(f"student_age: {cur.fetchone()[0]} rows")
+    # END SCHEMA CREATION TEST
