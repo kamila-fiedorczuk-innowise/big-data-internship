@@ -3,6 +3,7 @@ from pathlib import Path
 from src.db_connection import Connection
 from src.json_read import JsonReader
 from src.schema_creation import SchemaCreation
+from src.data_loader import DataLoader
 
 DATA_DIR = Path(__file__).parent / "data"
 SQL_DIR = Path(__file__).parent / "sql"
@@ -50,3 +51,21 @@ if __name__ == "__main__":
             cur.execute("SELECT COUNT(*) FROM student_age;")
             print(f"student_age: {cur.fetchone()[0]} rows")
     # END SCHEMA CREATION TEST
+
+    # DATA LOADER TEST
+    with Connection() as conn:
+        rooms = JsonReader(DATA_DIR / "rooms.json").read()
+        students = JsonReader(DATA_DIR / "students.json").read()
+
+        loader = DataLoader(conn)
+        loader.load(rooms, students)
+        loader.load(rooms, students)
+        print("load() ran twice without errors")
+
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM rooms;")
+            print(f"rooms: {cur.fetchone()[0]} rows (expected {len(rooms)})")
+
+            cur.execute("SELECT COUNT(*) FROM students;")
+            print(f"students: {cur.fetchone()[0]} rows (expected {len(students)})")
+    # END DATA LOADER TEST
