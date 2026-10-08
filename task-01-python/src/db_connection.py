@@ -3,19 +3,34 @@ import os
 import psycopg
 from dotenv import load_dotenv
 
-load_dotenv()
-host = os.getenv("DB_HOST")
-port = os.getenv("DB_PORT")
-dbname = os.getenv("DB_NAME")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
 
-conn = psycopg.connect(host=host, port=port, dbname=dbname, user=user, password=password)
+class Connection:
+    def __init__(self):
+        load_dotenv()
+        self.conn = None
+        self.host = os.getenv("DB_HOST")
+        self.port = os.getenv("DB_PORT")
+        self.dbname = os.getenv("DB_NAME")
+        self.user = os.getenv("DB_USER")
+        self.password = os.getenv("DB_PASSWORD")
+        if None in (self.host, self.port, self.dbname, self.user, self.password):
+            raise ValueError("Missing database settings in .env (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD)")
 
-cur = conn.cursor()
-cur.execute("SELECT version();")
-ver = cur.fetchone()
-print(ver[0])
+    def connect(self):
+        self.conn = psycopg.connect(host=self.host,
+                                    port=self.port,
+                                    dbname=self.dbname,
+                                    user=self.user,
+                                    password=self.password)
+        return self.conn
 
-cur.close()
-conn.close()
+    def disconnect(self):
+        if self.conn is not None:
+            self.conn.close()
+            self.conn = None
+
+    def __enter__(self):
+        return self.connect()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.disconnect()
