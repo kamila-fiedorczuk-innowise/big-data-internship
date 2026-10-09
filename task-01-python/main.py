@@ -1,9 +1,11 @@
+import json
 from pathlib import Path
 
 from src.db_connection import Connection
 from src.json_read import JsonReader
 from src.sql_file_runner import SqlFileRunner
 from src.data_loader import DataLoader
+from src.query_runner import QueryRunner
 
 DATA_DIR = Path(__file__).parent / "data"
 SQL_DIR = Path(__file__).parent / "sql"
@@ -69,3 +71,15 @@ if __name__ == "__main__":
             cur.execute("SELECT COUNT(*) FROM students;")
             print(f"students: {cur.fetchone()[0]} rows (expected {len(students)})")
     # END DATA LOADER TEST
+    # QUERY RUNNER TEST
+    with Connection() as conn:
+        runner = QueryRunner(conn, SQL_DIR)
+        results = runner.run_all()
+
+        for name, rows in results.items():
+            print(f"{name}: {len(rows)} rows")
+            for key, value in rows[0].items():
+                print(f"  {key}: {value!r} ({type(value).__name__})")
+
+        print(json.dumps(results, indent=2)[:500])
+    # END QUERY RUNNER TEST
