@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from src.db_connection import Connection
@@ -6,81 +5,43 @@ from src.json_read import JsonReader
 from src.sql_file_runner import SqlFileRunner
 from src.data_loader import DataLoader
 from src.query_runner import QueryRunner
+from src.json_write import JsonWriter
 
 DATA_DIR = Path(__file__).parent / "data"
 SQL_DIR = Path(__file__).parent / "sql"
 OUTPUT_DIR = Path(__file__).parent / "output"
 
 if __name__ == "__main__":
+    rooms_path = DATA_DIR / "rooms.json"
+    rooms = JsonReader(rooms_path).read()
+    students_path = DATA_DIR / "students.json"
+    students = JsonReader(students_path).read()
 
-    # CONNECTION TEST
     with Connection() as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT version();")
-        print(cur.fetchone()[0])
-    # END CONNECTION TEST
+        print(f"Database: {conn.info.dbname} connected")
 
-    # JSON READ TEST
-    test_files = [
-        DATA_DIR / "rooms.json",
-        DATA_DIR / "students.json",
-        DATA_DIR / "missing.json",
-    ]
-
-    for path in test_files:
-        try:
-            records = JsonReader(path).read()
-            print(f"{path.name}: {len(records)} records")
-        except (FileNotFoundError, ValueError) as e:
-            print(f"ERROR: {e}")
-    # END JSON READ TEST
-
-    # SCHEMA CREATION TEST
-    with Connection() as conn:
-        print(f"Database: {conn.info.dbname}")
-
+        # SCHEMA CREATION
         schema = SqlFileRunner(SQL_DIR / "schema.sql", conn)
         schema.create_sql()
-        schema.create_sql()
-        print("create_schema() ran twice without errors")
+        print("Schema Created")
 
-        with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM rooms;")
-            print(f"rooms: {cur.fetchone()[0]} rows")
-
-            cur.execute("SELECT COUNT(*) FROM students;")
-            print(f"students: {cur.fetchone()[0]} rows")
-
-            cur.execute("SELECT COUNT(*) FROM student_age;")
-            print(f"student_age: {cur.fetchone()[0]} rows")
-    # END SCHEMA CREATION TEST
-
-    # DATA LOADER TEST
-    with Connection() as conn:
-        rooms = JsonReader(DATA_DIR / "rooms.json").read()
-        students = JsonReader(DATA_DIR / "students.json").read()
-
+        # DATA LOADER
         loader = DataLoader(conn)
         loader.load(rooms, students)
-        loader.load(rooms, students)
-        print("load() ran twice without errors")
+        print("Data was Loaded")
 
-        with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM rooms;")
-            print(f"rooms: {cur.fetchone()[0]} rows (expected {len(rooms)})")
+        # INDEX CREATION
+        sql_index = SqlFileRunner(SQL_DIR / "indexes.sql", conn)
+        sql_index.create_sql()
+        print("SQL Indexes Created")
 
-            cur.execute("SELECT COUNT(*) FROM students;")
-            print(f"students: {cur.fetchone()[0]} rows (expected {len(students)})")
-    # END DATA LOADER TEST
-    # QUERY RUNNER TEST
-    with Connection() as conn:
+        # QUERIES
         runner = QueryRunner(conn, SQL_DIR)
         results = runner.run_all()
+        print("Queries executed")
 
-        for name, rows in results.items():
-            print(f"{name}: {len(rows)} rows")
-            for key, value in rows[0].items():
-                print(f"  {key}: {value!r} ({type(value).__name__})")
+        # WRITE RESULTS
+        writer = JsonWriter(OUTPUT_DIR / "query_results.json")
+        output_path = writer.write(results)
 
-        print(json.dumps(results, indent=2)[:500])
-    # END QUERY RUNNER TEST
+        print(f"Saved: {output_path}")
