@@ -9,6 +9,7 @@ from src.query_runner import QueryRunner
 
 DATA_DIR = Path(__file__).parent / "data"
 SQL_DIR = Path(__file__).parent / "sql"
+OUTPUT_DIR = Path(__file__).parent / "output"
 
 if __name__ == "__main__":
 
