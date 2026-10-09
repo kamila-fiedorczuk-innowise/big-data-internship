@@ -39,6 +39,54 @@
 
 --------------------------------------------
 
+## Setup
+
+Requirements: Python 3.14, PostgreSQL with an existing empty database.
+
+```
+pip install -r requirements.txt
+```
+
+Copy `.env.example` to `.env` and fill in the database connection settings.
+
+## Usage
+
+
+1. Open a terminal and go to the `task-01-python` folder.
+2. Run the script with paths to both data files:
+
+```
+python main.py --students data/students.json --rooms data/rooms.json
+```
+
+Parameters:
+
+| Parameter | Required | Description | Example |
+|---|---|---|---|
+| `--students` | yes | path to the JSON file with students | `data/students.json` |
+| `--rooms` | yes | path to the JSON file with rooms | `data/rooms.json` |
+| `--format` | no | output format; only `json` is supported (default) | `json` |
+
+
+The script creates the schema, loads the data, adds indexes, runs the four queries
+and saves the results.
+
+## Output
+
+`output/query_results.json` – one file with four sections:
+
+- `query_rooms_student_count` – rooms and number of students
+- `query_smallest_avg_age` – 5 rooms with the smallest average age
+- `query_largest_diff_age` – 5 rooms with the largest age difference
+- `query_diff_sex_rooms` – rooms with students of different sex
+
+## Decisions
+
+- Only JSON export is implemented.
+- Running the script again does not duplicate data.
+
+--------------------------------------------
+
 ## Index optimization
 
 Proposed indexes (sql/indexes.sql):
