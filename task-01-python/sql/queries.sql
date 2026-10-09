@@ -11,6 +11,7 @@ ORDER BY r.id;
 
 -- 	5 rooms with the smallest average age of students
 
+SELECT room_id,
 ROUND(AVG(age_years), 2) AS average_age
 FROM student_age
 GROUP BY room_id

@@ -2,7 +2,7 @@ from pathlib import Path
 
 from src.db_connection import Connection
 from src.json_read import JsonReader
-from src.schema_creation import SchemaCreation
+from src.sql_file_runner import SqlFileRunner
 from src.data_loader import DataLoader
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -36,9 +36,9 @@ if __name__ == "__main__":
     with Connection() as conn:
         print(f"Database: {conn.info.dbname}")
 
-        schema = SchemaCreation(SQL_DIR / "schema.sql", conn)
-        schema.create_schema()
-        schema.create_schema()
+        schema = SqlFileRunner(SQL_DIR / "schema.sql", conn)
+        schema.create_sql()
+        schema.create_sql()
         print("create_schema() ran twice without errors")
 
         with conn.cursor() as cur:
