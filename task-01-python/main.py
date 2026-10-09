@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 from src.db_connection import Connection
@@ -7,14 +8,23 @@ from src.data_loader import DataLoader
 from src.query_runner import QueryRunner
 from src.json_write import JsonWriter
 
-DATA_DIR = Path(__file__).parent / "data"
 SQL_DIR = Path(__file__).parent / "sql"
 OUTPUT_DIR = Path(__file__).parent / "output"
 
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Load data into PostgreSQL and export results")
+    parser.add_argument("--rooms", type=Path, required=True, help="path to rooms file")
+    parser.add_argument("--students", type=Path, required=True, help="path to students file")
+    parser.add_argument("--format", choices=["json"], default="json", help="output format")
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    rooms_path = DATA_DIR / "rooms.json"
+    args = parse_args()
+    rooms_path = args.rooms
     rooms = JsonReader(rooms_path).read()
-    students_path = DATA_DIR / "students.json"
+    students_path = args.students
     students = JsonReader(students_path).read()
 
     with Connection() as conn:
@@ -41,7 +51,7 @@ if __name__ == "__main__":
         print("Queries executed")
 
         # WRITE RESULTS
-        writer = JsonWriter(OUTPUT_DIR / "query_results.json")
+        writer = JsonWriter(OUTPUT_DIR / f"query_results.{args.format}")
         output_path = writer.write(results)
 
         print(f"Saved: {output_path}")
