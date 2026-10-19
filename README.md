@@ -7,5 +7,5 @@ Tasks completed during the Big Data internship.
 | Task | Description | Stack |
 |---|---|---|
 | [Task 01 - Python](task-01-python/) | Loads students and rooms from JSON into PostgreSQL, runs analytical SQL queries and exports the results to JSON | Python, PostgreSQL|
-
+| [Task 02 - NumPy](task-02-numpy/) | NumPy exercises: array operations, plain Python vs vectorized NumPy implementations, and statistical analysis of cereal calorie data | Python, NumPy |
 Each task folder has its own README with the task description, setup and usage.
