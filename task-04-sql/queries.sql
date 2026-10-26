@@ -25,9 +25,22 @@ GROUP BY a.actor_id, a.first_name, a.last_name
 ORDER BY COUNT(r.rental_id) DESC
 LIMIT 10;
 
-
 -- 3. Category of movies on which the most money was spent
-
+SELECT
+    c.name,
+    SUM(p.amount) AS money_spent
+FROM category AS c
+INNER JOIN film_category AS fc
+    ON c.category_id = fc.category_id
+INNER JOIN inventory AS i
+    ON fc.film_id = i.film_id
+INNER JOIN rental AS r
+    ON i.inventory_id = r.inventory_id
+INNER JOIN payment AS p
+    ON r.rental_id = p.rental_id
+GROUP BY c.category_id, c.name
+ORDER BY money_spent DESC
+LIMIT 1;
 
 -- 4. Movies that are not in the inventory (without IN)
 
