@@ -9,6 +9,21 @@ GROUP BY fc.category_id, c.name
 ORDER BY COUNT(fc.film_id) DESC;
 
 -- 2. Top 10 actors whose movies were rented the most, sorted descending
+SELECT
+    a.actor_id,
+    a.first_name AS actor_name,
+    a.last_name AS actor_last_name,
+    COUNT(r.rental_id) AS rental_count
+FROM actor AS a
+INNER JOIN film_actor AS fa
+    ON a.actor_id = fa.actor_id
+INNER JOIN inventory AS i
+    ON fa.film_id = i.film_id
+INNER JOIN rental AS r
+    ON i.inventory_id = r.inventory_id
+GROUP BY a.actor_id, a.first_name, a.last_name
+ORDER BY COUNT(r.rental_id) DESC
+LIMIT 10;
 
 
 -- 3. Category of movies on which the most money was spent
