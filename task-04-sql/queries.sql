@@ -1,5 +1,12 @@
 -- 1. Number of movies in each category, sorted descending
-
+SELECT
+    c.name AS film_category_name,
+    COUNT(fc.film_id) AS films_count
+FROM film_category AS fc
+INNER JOIN category AS c
+    ON fc.category_id = c.category_id
+GROUP BY fc.category_id, c.name
+ORDER BY COUNT(fc.film_id) DESC;
 
 -- 2. Top 10 actors whose movies were rented the most, sorted descending
 
