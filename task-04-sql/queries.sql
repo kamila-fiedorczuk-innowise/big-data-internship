@@ -51,7 +51,32 @@ WHERE i.film_id IS NULL
 ORDER BY f.title;
 
 -- 5. Top 3 actors with the most movies in "Children" category (ties included)
+WITH movie_top_rank AS (
+    SELECT
+        a.actor_id,
+        a.first_name,
+        a.last_name,
+        COUNT(*) AS num_of_movies,
+        DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) AS movie_rank
+    FROM actor AS a
+    INNER JOIN film_actor AS fa
+        ON a.actor_id = fa.actor_id
+    INNER JOIN film_category AS fc
+        ON fa.film_id = fc.film_id
+    INNER JOIN category AS c
+        ON fc.category_id = c.category_id
+    WHERE c.name = 'Children'
+    GROUP BY a.actor_id, a.first_name, a.last_name
+)
 
+SELECT
+    actor_id,
+    first_name,
+    last_name,
+    num_of_movies
+FROM movie_top_rank
+WHERE movie_rank <= 3
+ORDER BY num_of_movies DESC;
 
 -- 6. Cities with number of active and inactive customers,
 --    sorted by inactive descending
