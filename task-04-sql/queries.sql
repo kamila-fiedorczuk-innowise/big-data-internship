@@ -80,6 +80,17 @@ ORDER BY num_of_movies DESC;
 
 -- 6. Cities with number of active and inactive customers,
 --    sorted by inactive descending
+SELECT
+    cit.city,
+    SUM(CASE WHEN c.active = 1 THEN 1 ELSE 0 END) AS active_customers,
+    SUM(CASE WHEN c.active = 0 THEN 1 ELSE 0 END) AS inactive_customers
+FROM customer AS c
+INNER JOIN address AS a
+    ON c.address_id = a.address_id
+INNER JOIN city AS cit
+    ON a.city_id = cit.city_id
+GROUP BY cit.city, cit.city_id
+ORDER BY inactive_customers DESC;
 
 
 -- 7. Category with the most total rental hours in cities starting with "a"
