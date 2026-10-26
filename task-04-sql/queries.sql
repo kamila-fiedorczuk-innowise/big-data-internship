@@ -43,7 +43,12 @@ ORDER BY money_spent DESC
 LIMIT 1;
 
 -- 4. Movies that are not in the inventory (without IN)
-
+SELECT f.title
+FROM film AS f
+LEFT JOIN inventory AS i
+    ON f.film_id = i.film_id
+WHERE i.film_id IS NULL
+ORDER BY f.title;
 
 -- 5. Top 3 actors with the most movies in "Children" category (ties included)
 
