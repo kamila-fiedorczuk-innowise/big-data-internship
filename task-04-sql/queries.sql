@@ -92,6 +92,54 @@ INNER JOIN city AS cit
 GROUP BY cit.city, cit.city_id
 ORDER BY inactive_customers DESC;
 
-
 -- 7. Category with the most total rental hours in cities starting with "a"
 --    and in cities containing "-" (one query)
+WITH rentals_info AS (
+    SELECT
+        c.name AS category_name,
+        cit.city,
+        r.rental_date,
+        r.return_date
+    FROM category AS c
+    INNER JOIN film_category AS fc
+        ON c.category_id = fc.category_id
+    INNER JOIN inventory AS i
+        ON fc.film_id = i.film_id
+    INNER JOIN rental AS r
+        ON i.inventory_id = r.inventory_id
+    INNER JOIN customer AS cus
+        ON r.customer_id = cus.customer_id
+    INNER JOIN address AS a
+        ON cus.address_id = a.address_id
+    INNER JOIN city AS cit
+        ON a.city_id = cit.city_id
+    WHERE r.return_date IS NOT NULL
+)
+
+(
+    SELECT
+        'cities starting with a' AS city_group,
+        category_name,
+        ROUND(SUM(EXTRACT(EPOCH FROM return_date - rental_date) / 3600), 2)
+            AS rental_hours
+    FROM rentals_info
+    WHERE city ILIKE 'a%'
+    GROUP BY category_name
+    ORDER BY rental_hours DESC
+    LIMIT 1
+)
+
+UNION ALL
+
+(
+    SELECT
+        'cities containing -' AS city_group,
+        category_name,
+        ROUND(SUM(EXTRACT(EPOCH FROM return_date - rental_date) / 3600), 2)
+            AS rental_hours
+    FROM rentals_info
+    WHERE city LIKE '%-%'
+    GROUP BY category_name
+    ORDER BY rental_hours DESC
+    LIMIT 1
+);
