@@ -10,5 +10,5 @@ Tasks completed during the Big Data internship.
 | [Task 02 - NumPy](task-02-numpy/) | NumPy exercises: array operations, plain Python vs vectorized NumPy implementations, and statistical analysis of cereal calorie data | Python, NumPy |
 | [Task 03 - Pandas](task-03-pandas/) | Pandas exercises: analysis of 1994 US Census income data with filtering, grouping and aggregation | Python, pandas |
 | [Task 04 - SQL](task-04-sql/) | SQL queries against the Pagila demo database: aggregations, joins, rankings with ties and filtering by city | PostgreSQL, SQL |
-
+| [Task 05 - Airflow](task-05-airflow/) | Two Airflow DAGs: a file sensor, branching and a TaskGroup that cleans the data, then data-aware scheduling loads the result into MongoDB | Python, Airflow, pandas, MongoDB, Docker |
 Each task folder has its own README.
