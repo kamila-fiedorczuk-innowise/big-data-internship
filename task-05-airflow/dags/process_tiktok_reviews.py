@@ -3,12 +3,17 @@ from datetime import datetime
 
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.sensors.filesystem import FileSensor
-from airflow.sdk import dag, task, task_group
+from airflow.sdk import Asset, dag, task, task_group
 
 DATA_DIR = "/opt/airflow/data"
 INPUT_FILENAME = "tiktok_google_play_reviews.csv"
 INPUT_FILE = os.path.join(DATA_DIR, INPUT_FILENAME)
 PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
+CLEAN_REVIEWS_FILE = os.path.join(PROCESSED_DIR, "03_clean_content.csv")
+CLEAN_REVIEWS_ASSET = Asset(
+    name="tiktok_reviews_clean",
+    uri=f"file://{CLEAN_REVIEWS_FILE}",
+)
 
 
 @dag(
@@ -64,7 +69,7 @@ def process_tiktok_reviews():
             df.to_csv(output_path, index=False)
             return output_path
 
-        @task
+        @task(outlets=[CLEAN_REVIEWS_ASSET])
         def clean_content(input_path):
             import pandas as pd
 
@@ -73,7 +78,7 @@ def process_tiktok_reviews():
                 r"[^\w\s.,!?'\":;()\-]", "", regex=True
             )
             df["content"] = df["content"].str.strip().replace("", "-")
-            output_path = os.path.join(PROCESSED_DIR, "03_clean_content.csv")
+            output_path = CLEAN_REVIEWS_FILE
             df.to_csv(output_path, index=False)
             return output_path
 
