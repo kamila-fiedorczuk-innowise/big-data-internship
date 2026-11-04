@@ -1,20 +1,14 @@
-import os
 from datetime import datetime
 
 from airflow.providers.mongo.hooks.mongo import MongoHook
-from airflow.sdk import Asset, dag, task
-
-DATA_DIR = "/opt/airflow/data"
-PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
-CLEAN_REVIEWS_FILE = os.path.join(PROCESSED_DIR, "03_clean_content.csv")
-CLEAN_REVIEWS_ASSET = Asset(
-    name="tiktok_reviews_clean",
-    uri=f"file://{CLEAN_REVIEWS_FILE}",
+from airflow.sdk import dag, task
+from pipeline_config import (
+    CLEAN_REVIEWS_ASSET,
+    CLEAN_REVIEWS_FILE,
+    MONGO_COLLECTION,
+    MONGO_CONN_ID,
+    MONGO_DB,
 )
-
-MONGO_CONN_ID = "mongo_tiktok"
-MONGO_DB = "tiktok"
-MONGO_COLLECTION = "reviews"
 
 
 @dag(

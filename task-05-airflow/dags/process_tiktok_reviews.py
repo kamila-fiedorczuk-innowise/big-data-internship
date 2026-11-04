@@ -3,16 +3,14 @@ from datetime import datetime
 
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.sensors.filesystem import FileSensor
-from airflow.sdk import Asset, dag, task, task_group
-
-DATA_DIR = "/opt/airflow/data"
-INPUT_FILENAME = "tiktok_google_play_reviews.csv"
-INPUT_FILE = os.path.join(DATA_DIR, INPUT_FILENAME)
-PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
-CLEAN_REVIEWS_FILE = os.path.join(PROCESSED_DIR, "03_clean_content.csv")
-CLEAN_REVIEWS_ASSET = Asset(
-    name="tiktok_reviews_clean",
-    uri=f"file://{CLEAN_REVIEWS_FILE}",
+from airflow.sdk import dag, task, task_group
+from pipeline_config import (
+    CLEAN_REVIEWS_ASSET,
+    CLEAN_REVIEWS_FILE,
+    FS_CONN_ID,
+    INPUT_FILE,
+    INPUT_FILENAME,
+    PROCESSED_DIR,
 )
 
 
@@ -26,7 +24,7 @@ CLEAN_REVIEWS_ASSET = Asset(
 def process_tiktok_reviews():
     wait_for_file = FileSensor(
         task_id="wait_for_file",
-        fs_conn_id="fs_data",
+        fs_conn_id=FS_CONN_ID,
         filepath=INPUT_FILENAME,
         poke_interval=30,
         timeout=60 * 60,

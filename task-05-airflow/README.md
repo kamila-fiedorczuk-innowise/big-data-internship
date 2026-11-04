@@ -45,6 +45,8 @@ locally in Docker.
 
 1. Copy `.env.example` to `.env` and fill in the empty values
    (the file contains a command that generates passwords and keys).
+   Data paths (`DATA_DIR`, `PROCESSED_DIR`, `INPUT_FILENAME`) are preset there;
+   the DAGs read them through `dags/pipeline_config.py`.
 2. Build the image and initialise Airflow:
 
    ```

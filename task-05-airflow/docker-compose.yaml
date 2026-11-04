@@ -19,12 +19,15 @@ x-airflow-common:
     AIRFLOW__API_AUTH__JWT_ISSUER: 'airflow'
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    DATA_DIR: ${DATA_DIR}
+    PROCESSED_DIR: ${PROCESSED_DIR}
+    INPUT_FILENAME: ${INPUT_FILENAME}
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./config:/opt/airflow/config
     - ./plugins:/opt/airflow/plugins
-    - ./data:/opt/airflow/data
+    - ./data:${DATA_DIR}
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -126,10 +129,10 @@ services:
     command:
       - -c
       - |
-        mkdir -v -p /opt/airflow/{logs,dags,plugins,config,data}
+        mkdir -v -p /opt/airflow/{logs,dags,plugins,config} "${DATA_DIR}"
         /entrypoint airflow version
         /entrypoint airflow config list >/dev/null
-        chown -R "${AIRFLOW_UID:-50000}:0" /opt/airflow/{logs,dags,plugins,config,data}
+        chown -R "${AIRFLOW_UID:-50000}:0" /opt/airflow/{logs,dags,plugins,config} "${DATA_DIR}"
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_MIGRATE: 'true'
